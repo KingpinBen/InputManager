@@ -6,11 +6,11 @@ using System;
 
 public static class InputManager
 {
-    private static Dictionary<KeyUsage, KeyCode> _keyCodeChanges;
-
     //  Hook this for objects like GUI elements to update them when
     //  a rebind occurs
     public static Action OnKeyBindChange;
+
+    private static Dictionary<KeyUsage, KeyCode> _keyCodeChanges;
 
     public static bool GetKeyDown(KeyUsage use)
     {
