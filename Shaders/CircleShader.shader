@@ -61,9 +61,11 @@ Shader "Custom/CircleShader"
 				half4 result = half4(0,0,0,0);
 
 				//	distFromCenter < .5 causes the quad to display as a circle, removing the corners
+				//	This 'if' colors the outer edge line of the circle
 				if (distFromCenter < _NRadius && distFromCenter > _NRadius - _Width)
 					return _Color;
-
+				
+				//	This does the inner circle. You may not want this
 				if (distFromCenter < _NRadius - _Width)
 				{
 					result = _Color;
