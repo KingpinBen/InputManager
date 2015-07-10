@@ -1,4 +1,4 @@
-//	In Editor vid: https://www.youtube.com/watch?v=Imr1P_Izy64
+//	In Editor vid: http://youtu.be/eNiRR2DMXxM
 
 Shader "Custom/CircleShader" 
 {
