@@ -12,6 +12,14 @@ public static class InputManager
 
     private static Dictionary<KeyUsage, KeyCode> _keyCodeChanges;
 
+    private static void InitializeDictionary()
+    {
+        if (_keyCodeChanges != null)
+            return;
+
+        _keyCodeChanges = new Dictionary<KeyUsage, KeyCode>(new KeyUsageComparer());
+    }
+
     public static bool GetKeyDown(KeyUsage use)
     {
         KeyCode code;
@@ -62,7 +70,7 @@ public static class InputManager
     public static void ResetKeyBinding()
     {
         if (_keyCodeChanges == null)
-            _keyCodeChanges = new Dictionary<KeyUsage, KeyCode>();
+            InitializeDictionary();
 
         _keyCodeChanges[KeyUsage.Ability1] = KeyCode.Q;
         _keyCodeChanges[KeyUsage.Ability2] = KeyCode.W;
@@ -105,7 +113,7 @@ public static class InputManager
         }
 
         if (_keyCodeChanges == null)
-            _keyCodeChanges = new Dictionary<KeyUsage, KeyCode>();
+            InitializeDictionary();
 
         using (var readStream = new BinaryReader(File.Open(path, FileMode.Open)))
         {
