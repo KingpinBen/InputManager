@@ -5,7 +5,7 @@ Shader "Custom/CircleShader"
 		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		_Color("Color", Color) = (1,1,1,1)
 		_Width("Line Width", Range(.01, .1)) = .01
-		_Dist("Distance", Range(0, .5)) = .01
+		_NRadius("Radius", Range(0, .5)) = .01
 	}
 
 	SubShader
@@ -27,7 +27,7 @@ Shader "Custom/CircleShader"
 
 			uniform half4 _Color;
 			uniform half _Width;
-			uniform half _Dist;
+			uniform half _NRadius;
 			uniform sampler2D _MainTex;
 
 			struct v2f
@@ -56,15 +56,13 @@ Shader "Custom/CircleShader"
 					i.uv.x * i.uv.x +
 					i.uv.y * i.uv.y);
 
-				half radius = _Dist;
-
 				half4 result = half4(0,0,0,0);
 
 				//	distFromCenter < .5 causes the quad to display as a circle, removing the corners
-				if (distFromCenter < radius && distFromCenter > radius - _Width)
+				if (distFromCenter < _NRadius && distFromCenter > _NRadius - _Width)
 					return _Color;
 
-				if (distFromCenter < radius - _Width)
+				if (distFromCenter < _NRadius - _Width)
 				{
 					result = _Color;
 					result.a = .2f;
