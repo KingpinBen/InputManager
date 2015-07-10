@@ -1,3 +1,5 @@
+//	In Editor vid: https://www.youtube.com/watch?v=Imr1P_Izy64
+
 Shader "Custom/CircleShader" 
 {
 	Properties
