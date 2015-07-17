@@ -4,10 +4,9 @@ Shader "Custom/CircleShader"
 {
 	Properties
 	{
-		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		_Color("Color", Color) = (1,1,1,1)
 		_Width("Line Width", Range(.01, .1)) = .01
-		_NRadius("Radius", Range(0, .5)) = .01
+		_Radius("Radius", Range(0, .5)) = .01
 	}
 
 	SubShader
@@ -29,8 +28,7 @@ Shader "Custom/CircleShader"
 
 			uniform half4 _Color;
 			uniform half _Width;
-			uniform half _NRadius;
-			uniform sampler2D _MainTex;
+			uniform half _Radius;
 
 			struct v2f
 			{
@@ -44,10 +42,10 @@ Shader "Custom/CircleShader"
 
 			v2f vert(appdata_base i)
 			{
-				v2f output;
+				v2f o;
 
-				output.position = mul(UNITY_MATRIX_MVP, i.vertex);
-				output.uv = i.texcoord - half2(.5, .5);
+				o.position = mul(UNITY_MATRIX_MVP, i.vertex);
+				o.uv = i.texcoord - half2(.5, .5);
 
 				o.sqrs.x = pow(_Radius, 2);
 				o.sqrs.y = pow(_Radius - _Width, 2);
