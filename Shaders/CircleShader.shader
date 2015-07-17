@@ -50,7 +50,7 @@ Shader "Custom/CircleShader"
 				o.sqrs.x = pow(_Radius, 2);
 				o.sqrs.y = pow(_Radius - _Width, 2);
 
-				return output;
+				return o;
 			}
 
 			half4 frag(v2f i) : COLOR
