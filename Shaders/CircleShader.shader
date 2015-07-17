@@ -36,6 +36,10 @@ Shader "Custom/CircleShader"
 			{
 				float4 position : POSITION;
 				half2 uv : TEXCOORD0;
+				
+				//	x = sqr-Radius
+				//	y = sqr-RadiusMinusWidth
+				half2 sqrs : TEXCOORD1;
 			};
 
 			v2f vert(appdata_base i)
@@ -43,36 +47,32 @@ Shader "Custom/CircleShader"
 				v2f output;
 
 				output.position = mul(UNITY_MATRIX_MVP, i.vertex);
-				output.uv = i.texcoord;
+				output.uv = i.texcoord - half2(.5, .5);
+
+				o.sqrs.x = pow(_Radius, 2);
+				o.sqrs.y = pow(_Radius - _Width, 2);
 
 				return output;
 			}
 
 			half4 frag(v2f i) : COLOR
 			{
-				//	Recenter the UV
-				i.uv.x -= .5;
-				i.uv.y -= .5;
+				half distance = (i.uv.x * i.uv.x) + (i.uv.y * i.uv.y);
 
-				half distFromCenter = sqrt(
-					i.uv.x * i.uv.x +
-					i.uv.y * i.uv.y);
+#if SHADER_API_D3D9
+				//	Clipping on D3D9 was compiling to invoke a texkill. 
+				if (i.sqrs.x < distance)
+					return _Color * (distance < i.sqrs.y ? .5 : 1);
+				return half4(0, 0, 0, 0);
+#else
+				clip(distance > i.sqrs.x ? -1 : 1);
 
-				half4 result = half4(0,0,0,0);
-
-				//	distFromCenter < .5 causes the quad to display as a circle, removing the corners
-				//	This 'if' colors the outer edge line of the circle
-				if (distFromCenter < _NRadius && distFromCenter > _NRadius - _Width)
-					return _Color;
-				
-				//	This does the inner circle. You may not want this
-				if (distFromCenter < _NRadius - _Width)
-				{
-					result = _Color;
-					result.a = .2f;
-				}
+				half4 result = _Color;
+				if (distance < i.sqrs.y)
+					result.a = .5;
 
 				return result;
+#endif
 			}
 
 			ENDCG
