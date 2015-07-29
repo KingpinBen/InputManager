@@ -1,0 +1,261 @@
+using UnityEngine;
+using System.Collections;
+using XInputDotNetPure;
+using System.Collections.Generic;
+using System;
+
+public class GamePadManager : MonoBehaviour
+{
+    private const int cPlayerCount = 4;
+
+    private GamePadContainer[] _gamepadContainers;
+    private HashSet<int> _activeIndices;
+
+    public event Action<PlayerIndex> PlayerConnected;
+    public event Action<PlayerIndex> PlayerDisconnected;
+
+    private void Awake()
+    {
+        _activeIndices = new HashSet<int>();
+        _gamepadContainers = new GamePadContainer[Mathf.Clamp(cPlayerCount, 1, 4)];
+
+        for(int i = 0; i < _gamepadContainers.Length; i++)
+            _gamepadContainers[i] = new GamePadContainer((PlayerIndex)i);
+    }
+
+    private void Update()
+    {
+        for (int i = 0; i < _gamepadContainers.Length; i++)
+        {
+            _gamepadContainers[i].UpdateState();
+
+            if (_activeIndices.Contains(i))
+            {
+                if (!_gamepadContainers[i].Connected)
+                {
+                    _activeIndices.Remove(i);
+
+                    if (PlayerDisconnected != null)
+                        PlayerDisconnected.Invoke(_gamepadContainers[i].PlayerIndex);
+
+                    continue;
+                }
+            }
+            else
+            {
+                if (_gamepadContainers[i].Connected)
+                {
+                    _activeIndices.Add(i);
+
+                    if (PlayerConnected != null)
+                        PlayerConnected.Invoke(_gamepadContainers[i].PlayerIndex);
+                }
+            }
+        }
+    }
+
+    public bool GetButton(PlayerIndex index, GamePadButton button)
+    {
+        return _gamepadContainers[(int)index].GetButton(button);
+    }
+
+    public bool GetButtonDown(PlayerIndex index, GamePadButton button)
+    {
+        return _gamepadContainers[(int)index].GetButtonDown(button);
+    }
+
+    public bool GetButtonUp(PlayerIndex index, GamePadButton button)
+    {
+        return _gamepadContainers[(int)index].GetButtonUp(button);
+    }
+
+    public float GetAxisVertical(PlayerIndex index, GamePadThumbstick thumbstick)
+    {
+        return _gamepadContainers[(int)index].GetAxisVertical(thumbstick);
+    }
+
+    public float GetAxisHorizontal(PlayerIndex index, GamePadThumbstick thumbstick)
+    {
+        return _gamepadContainers[(int)index].GetAxisHorizontal(thumbstick);
+    }
+
+    public enum GamePadButton
+    {
+        A,
+        B,
+        Back,
+        Guide,
+        LeftShoulder,
+        LeftStick,
+        RightShoulder,
+        RightStick,
+        Start,
+        X,
+        Y,
+    }
+
+    public enum GamePadThumbstick
+    {
+        Left,
+        Right
+    }
+
+    private class GamePadContainer
+    {
+        private PlayerIndex _index;
+        private GamePadState _previousState;
+        private GamePadState _currentState;
+
+        public GamePadContainer(PlayerIndex index)
+        {
+            _index = index;
+        }
+
+        public void UpdateState()
+        {
+            _previousState = _currentState;
+            _currentState = GamePad.GetState(_index);
+        }
+
+        public PlayerIndex PlayerIndex
+        {
+            get { return _index; }
+        }
+
+        public bool GetButton(GamePadButton button)
+        {
+            switch (button)
+            {
+                case GamePadButton.A:
+                    return _currentState.Buttons.A == ButtonState.Pressed;
+                case GamePadButton.B:
+                    return _currentState.Buttons.B == ButtonState.Pressed;
+                case GamePadButton.Back:
+                    return _currentState.Buttons.Back == ButtonState.Pressed;
+                case GamePadButton.Guide:
+                    return _currentState.Buttons.Guide == ButtonState.Pressed;
+                case GamePadButton.LeftShoulder:
+                    return _currentState.Buttons.LeftShoulder == ButtonState.Pressed;
+                case GamePadButton.LeftStick:
+                    return _currentState.Buttons.LeftStick == ButtonState.Pressed;
+                case GamePadButton.RightShoulder:
+                    return _currentState.Buttons.RightShoulder == ButtonState.Pressed;
+                case GamePadButton.RightStick:
+                    return _currentState.Buttons.RightStick == ButtonState.Pressed;
+                case GamePadButton.Start:
+                    return _currentState.Buttons.Start == ButtonState.Pressed;
+                case GamePadButton.X:
+                    return _currentState.Buttons.X == ButtonState.Pressed;
+                case GamePadButton.Y:
+                    return _currentState.Buttons.Y == ButtonState.Pressed;
+                default:
+                    return false;
+            }
+        }
+
+        public bool GetButtonDown(GamePadButton button)
+        {
+            switch (button)
+            {
+                case GamePadButton.A:
+                    return _currentState.Buttons.A == ButtonState.Pressed &&
+                        _previousState.Buttons.A == ButtonState.Released;
+                case GamePadButton.B:
+                    return _currentState.Buttons.B == ButtonState.Pressed &&
+                        _previousState.Buttons.B == ButtonState.Released;
+                case GamePadButton.Back:
+                    return _currentState.Buttons.Back == ButtonState.Pressed &&
+                        _previousState.Buttons.Back == ButtonState.Released;
+                case GamePadButton.Guide:
+                    return _currentState.Buttons.Guide == ButtonState.Pressed &&
+                        _previousState.Buttons.Guide == ButtonState.Released;
+                case GamePadButton.LeftShoulder:
+                    return _currentState.Buttons.LeftShoulder == ButtonState.Pressed &&
+                        _previousState.Buttons.LeftShoulder == ButtonState.Released;
+                case GamePadButton.LeftStick:
+                    return _currentState.Buttons.LeftStick == ButtonState.Pressed &&
+                        _previousState.Buttons.LeftStick == ButtonState.Released;
+                case GamePadButton.RightShoulder:
+                    return _currentState.Buttons.RightShoulder == ButtonState.Pressed &&
+                        _previousState.Buttons.RightShoulder == ButtonState.Released;
+                case GamePadButton.RightStick:
+                    return _currentState.Buttons.RightStick == ButtonState.Pressed &&
+                        _previousState.Buttons.RightStick == ButtonState.Released;
+                case GamePadButton.Start:
+                    return _currentState.Buttons.Start == ButtonState.Pressed &&
+                        _previousState.Buttons.Start == ButtonState.Released;
+                case GamePadButton.X:
+                    return _currentState.Buttons.X == ButtonState.Pressed &&
+                        _previousState.Buttons.X == ButtonState.Released;
+                case GamePadButton.Y:
+                    return _currentState.Buttons.Y == ButtonState.Pressed &&
+                        _previousState.Buttons.Y == ButtonState.Released;
+                default:
+                    return false;
+            }
+        }
+
+        public bool GetButtonUp(GamePadButton button)
+        {
+            switch (button)
+            {
+                case GamePadButton.A:
+                    return _currentState.Buttons.A == ButtonState.Released &&
+                        _previousState.Buttons.A == ButtonState.Pressed;
+                case GamePadButton.B:
+                    return _currentState.Buttons.B == ButtonState.Released &&
+                        _previousState.Buttons.B == ButtonState.Pressed;
+                case GamePadButton.Back:
+                    return _currentState.Buttons.Back == ButtonState.Released &&
+                        _previousState.Buttons.Back == ButtonState.Pressed;
+                case GamePadButton.Guide:
+                    return _currentState.Buttons.Guide == ButtonState.Released &&
+                        _previousState.Buttons.Guide == ButtonState.Pressed;
+                case GamePadButton.LeftShoulder:
+                    return _currentState.Buttons.LeftShoulder == ButtonState.Released &&
+                        _previousState.Buttons.LeftShoulder == ButtonState.Pressed;
+                case GamePadButton.LeftStick:
+                    return _currentState.Buttons.LeftStick == ButtonState.Released &&
+                        _previousState.Buttons.LeftStick == ButtonState.Pressed;
+                case GamePadButton.RightShoulder:
+                    return _currentState.Buttons.RightShoulder == ButtonState.Released &&
+                        _previousState.Buttons.RightShoulder == ButtonState.Pressed;
+                case GamePadButton.RightStick:
+                    return _currentState.Buttons.RightStick == ButtonState.Released &&
+                        _previousState.Buttons.RightStick == ButtonState.Pressed;
+                case GamePadButton.Start:
+                    return _currentState.Buttons.Start == ButtonState.Released &&
+                        _previousState.Buttons.Start == ButtonState.Pressed;
+                case GamePadButton.X:
+                    return _currentState.Buttons.X == ButtonState.Released &&
+                        _previousState.Buttons.X == ButtonState.Pressed;
+                case GamePadButton.Y:
+                    return _currentState.Buttons.Y == ButtonState.Released &&
+                        _previousState.Buttons.Y == ButtonState.Pressed;
+                default:
+                    return false;
+            }
+        }
+
+        public float GetAxisHorizontal(GamePadThumbstick thumbstick)
+        {
+            if (thumbstick == GamePadThumbstick.Left)
+                return _currentState.ThumbSticks.Left.X;
+            return _currentState.ThumbSticks.Right.X;
+        }
+
+        public float GetAxisVertical(GamePadThumbstick thumbstick)
+        {
+            if (thumbstick == GamePadThumbstick.Left)
+                return _currentState.ThumbSticks.Left.Y;
+            return _currentState.ThumbSticks.Right.Y;
+        }
+
+        public bool Connected
+        {
+            get { return _currentState.IsConnected; }
+        }
+
+    }
+
+}
